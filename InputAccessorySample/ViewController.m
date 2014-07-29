@@ -2,8 +2,7 @@
 //  ViewController.m
 //  InputAccessorySample
 //
-//  Created by Nikita Ivaniushchenko on 7/29/14.
-//  Copyright (c) 2014 NGTI. All rights reserved.
+//  Copyright (c) 2014. All rights reserved.
 //
 
 #import "ViewController.h"

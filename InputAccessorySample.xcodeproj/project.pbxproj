@@ -20,8 +20,6 @@
 		9AFD267619878EE800D03CB0 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AFD267519878EE800D03CB0 /* XCTest.framework */; };
 		9AFD267719878EE800D03CB0 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AFD265319878EE800D03CB0 /* Foundation.framework */; };
 		9AFD267819878EE800D03CB0 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AFD265719878EE800D03CB0 /* UIKit.framework */; };
-		9AFD268019878EE800D03CB0 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9AFD267E19878EE800D03CB0 /* InfoPlist.strings */; };
-		9AFD268219878EE800D03CB0 /* InputAccessorySampleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AFD268119878EE800D03CB0 /* InputAccessorySampleTests.m */; };
 		9AFD268D198797F400D03CB0 /* CustomInputAccessoryView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AFD268C198797F400D03CB0 /* CustomInputAccessoryView.m */; };
 /* End PBXBuildFile section */
 
@@ -53,9 +51,6 @@
 		9AFD266E19878EE800D03CB0 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		9AFD267419878EE800D03CB0 /* InputAccessorySampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = InputAccessorySampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9AFD267519878EE800D03CB0 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
-		9AFD267D19878EE800D03CB0 /* InputAccessorySampleTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "InputAccessorySampleTests-Info.plist"; sourceTree = "<group>"; };
-		9AFD267F19878EE800D03CB0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		9AFD268119878EE800D03CB0 /* InputAccessorySampleTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InputAccessorySampleTests.m; sourceTree = "<group>"; };
 		9AFD268B198797F400D03CB0 /* CustomInputAccessoryView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomInputAccessoryView.h; sourceTree = "<group>"; };
 		9AFD268C198797F400D03CB0 /* CustomInputAccessoryView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomInputAccessoryView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -88,7 +83,6 @@
 			isa = PBXGroup;
 			children = (
 				9AFD265919878EE800D03CB0 /* InputAccessorySample */,
-				9AFD267B19878EE800D03CB0 /* InputAccessorySampleTests */,
 				9AFD265219878EE800D03CB0 /* Frameworks */,
 				9AFD265119878EE800D03CB0 /* Products */,
 			);
@@ -138,24 +132,6 @@
 				9AFD265C19878EE800D03CB0 /* InfoPlist.strings */,
 				9AFD265F19878EE800D03CB0 /* main.m */,
 				9AFD266119878EE800D03CB0 /* InputAccessorySample-Prefix.pch */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		9AFD267B19878EE800D03CB0 /* InputAccessorySampleTests */ = {
-			isa = PBXGroup;
-			children = (
-				9AFD268119878EE800D03CB0 /* InputAccessorySampleTests.m */,
-				9AFD267C19878EE800D03CB0 /* Supporting Files */,
-			);
-			path = InputAccessorySampleTests;
-			sourceTree = "<group>";
-		};
-		9AFD267C19878EE800D03CB0 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				9AFD267D19878EE800D03CB0 /* InputAccessorySampleTests-Info.plist */,
-				9AFD267E19878EE800D03CB0 /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -247,7 +223,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9AFD268019878EE800D03CB0 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -269,7 +244,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9AFD268219878EE800D03CB0 /* InputAccessorySampleTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -306,14 +280,6 @@
 				9AFD266919878EE800D03CB0 /* Base */,
 			);
 			name = Main_iPad.storyboard;
-			sourceTree = "<group>";
-		};
-		9AFD267E19878EE800D03CB0 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				9AFD267F19878EE800D03CB0 /* en */,
-			);
-			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -399,6 +365,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "InputAccessorySample/InputAccessorySample-Prefix.pch";
 				INFOPLIST_FILE = "InputAccessorySample/InputAccessorySample-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -412,6 +379,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "InputAccessorySample/InputAccessorySample-Prefix.pch";
 				INFOPLIST_FILE = "InputAccessorySample/InputAccessorySample-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -476,6 +444,7 @@
 				9AFD268719878EE800D03CB0 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		9AFD268819878EE800D03CB0 /* Build configuration list for PBXNativeTarget "InputAccessorySampleTests" */ = {
 			isa = XCConfigurationList;
@@ -484,6 +453,7 @@
 				9AFD268A19878EE800D03CB0 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
