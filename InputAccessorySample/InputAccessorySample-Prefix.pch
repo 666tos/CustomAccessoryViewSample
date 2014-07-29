@@ -6,6 +6,11 @@
 
 #import <Availability.h>
 
+#define RUNNING_ON_IPAD         ([[UIDevice currentDevice] userInterfaceIdiom] != UIUserInterfaceIdiomPhone)
+#define RUNNING_ON_IOS7         ([UIDevice currentDevice].systemVersion.floatValue >= 7.f)
+#define RUNNING_ON_IOS8         ([UIDevice currentDevice].systemVersion.floatValue >= 8.f)
+#define UI_SCREEN_SCALE         ([UIScreen mainScreen].scale)
+
 #ifndef __IPHONE_5_0
 #warning "This project uses features only available in iOS SDK 5.0 and later."
 #endif

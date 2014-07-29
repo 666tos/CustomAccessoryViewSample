@@ -5,13 +5,29 @@
 //  Copyright (c) 2014. All rights reserved.
 //
 
-#import "AppDelegate.h"
+#import "NIAppDelegate.h"
 
-@implementation AppDelegate
+@interface NIAppDelegate() <UISplitViewControllerDelegate>
+
+@end
+
+@implementation NIAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    // Override point for customization after application launch.
+    if (RUNNING_ON_IPAD)
+    {
+        self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+        self.window.backgroundColor = [UIColor whiteColor];
+        
+        UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main_iPad" bundle:nil];
+        UISplitViewController *splitViewController = [storyboard instantiateInitialViewController];
+        splitViewController.delegate = self;
+        
+        self.window.rootViewController = splitViewController;
+        [self.window makeKeyAndVisible];
+    }
+
     return YES;
 }
 							
@@ -40,6 +56,14 @@
 - (void)applicationWillTerminate:(UIApplication *)application
 {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+}
+
+#pragma mark -
+#pragma mark UISplitViewControllerDelegate's methods
+
+- (BOOL)splitViewController:(UISplitViewController *)svc shouldHideViewController:(UIViewController *)vc inOrientation:(UIInterfaceOrientation)orientation
+{
+    return NO;
 }
 
 @end
