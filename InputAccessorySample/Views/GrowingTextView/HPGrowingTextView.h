@@ -36,7 +36,7 @@
 @class HPGrowingTextView;
 @class HPTextViewInternal;
 
-@protocol HPGrowingTextViewDelegate
+@protocol HPGrowingTextViewDelegate <NSObject>
 
 @optional
 - (BOOL)growingTextViewShouldBeginEditing:(HPGrowingTextView *)growingTextView;
@@ -69,7 +69,7 @@
     NSTimeInterval animationDuration;
 	
 	//uitextview properties
-	__weak NSObject <HPGrowingTextViewDelegate> *delegate;
+	__weak id <HPGrowingTextViewDelegate> delegate;
 	NSTextAlignment textAlignment;
 	NSRange selectedRange;
 	BOOL editable;
@@ -93,7 +93,7 @@
 
 
 //uitextview properties
-@property(nonatomic, weak) NSObject<HPGrowingTextViewDelegate> *delegate;
+@property(nonatomic, weak) id<HPGrowingTextViewDelegate> delegate;
 @property(nonatomic,strong) NSString *text;
 @property(nonatomic,strong) UIFont *font;
 @property(nonatomic,strong) UIColor *textColor;

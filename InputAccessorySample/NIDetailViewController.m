@@ -9,8 +9,31 @@
 #import "NIConversationInputAccessoryView.h"
 #import "NIGrowingTextView.h"
 
-@interface NIDetailViewController () <HPGrowingTextViewDelegate, UITableViewDataSource>
+@interface NIDetailViewControllerView : UIView
 
+@property (nonatomic, assign) UIViewController *viewController;
+
+@end
+
+@implementation NIDetailViewControllerView
+
+- (void)willMoveToWindow:(UIWindow *)newWindow
+{
+//    if (!newWindow)
+//    {
+//        [self.viewController resignFirstResponder];
+//        [self.viewController.inputAccessoryView resignFirstResponder];
+//        [self.viewController.inputAccessoryView removeFromSuperview];
+//    }
+    
+    [super willMoveToWindow:newWindow];
+}
+
+@end
+
+@interface NIDetailViewController () <HPGrowingTextViewDelegate, UITableViewDataSource, UIViewControllerTransitioningDelegate>
+
+@property (nonatomic, strong) IBOutlet UITextField *textField;
 @property (nonatomic, strong) IBOutlet UITableView *tableView;
 @property (nonatomic, strong) NIConversationInputAccessoryView *customInputAccessoryView;
 
@@ -22,16 +45,53 @@
 {
     [super viewDidLoad];
     
+    [self createInputAccessoryView];
+    
+    NIDetailViewControllerView *view = self.view;
+    view.viewController = self;
+    
     UIEdgeInsets contentInset = self.tableView.contentInset;
     contentInset.bottom = kNIGrowingTextViewMinTextViewHeight;
     self.tableView.contentInset = contentInset;
     
-    self.view.backgroundColor = [UIColor lightGrayColor];
+    self.tableView.backgroundColor = [UIColor redColor];
+    self.view.backgroundColor = [UIColor redColor];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:)
                                                  name:UIKeyboardWillShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:)
                                                  name:UIKeyboardWillHideNotification object:nil];
+    
+    UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideKeyboard)];
+    [self.view addGestureRecognizer:tapGestureRecognizer];
+//    [self.tableView addGestureRecognizer:tapGestureRecognizer];
+}
+
+- (void)dealloc
+{
+    
+}
+
+- (void)hideKeyboard
+{
+    [self.textField resignFirstResponder];
+
+    /*
+    UIView *peripheralHostView = [[self.customInputAccessoryView.window subviews] lastObject];
+    
+    UIView *inputBackdropView = nil;
+    
+    for (UIView *subview in peripheralHostView.subviews)
+    {
+        if ([NSStringFromClass(subview.class) isEqualToString:@"UIKBInputBackdropView"])
+        {
+            inputBackdropView = subview;
+            break;
+        }
+    }
+    
+    inputBackdropView.frame = peripheralHostView.bounds;
+     */
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -49,6 +109,39 @@
     [super viewDidAppear:animated];
     
     [self becomeFirstResponder];
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    
+//    [self.transitionCoordinator animateAlongsideTransitionInView:self.customInputAccessoryView.superview animation:^(id<UIViewControllerTransitionCoordinatorContext> context)
+//    {
+//        [self.inputAccessoryView removeFromSuperview];
+//    }
+//    completion:^(id<UIViewControllerTransitionCoordinatorContext> context)
+//    {
+//        [self.inputAccessoryView removeFromSuperview];
+//    }];
+    
+        __weak __typeof(self) weakSelf = self;
+    
+    [self.transitionCoordinator notifyWhenInteractionEndsUsingBlock:^(id<UIViewControllerTransitionCoordinatorContext> context)
+    {
+//        weakSelf.customInputAccessoryView = nil;
+//        [weakSelf.customInputAccessoryView removeFromSuperview];
+//        
+//        [weakSelf reloadInputViews];
+    }];
+}
+
+- (void)viewDidDisappear:(BOOL)animated
+{
+    [super viewDidDisappear:animated];
+    
+    [self.view.window endEditing:YES];
+    
+    [self resignFirstResponder];
 }
 
 #pragma mark - KeyBoard handling
@@ -125,18 +218,23 @@
         }
     };
     
-    if (aDuration > 0)
-    {
-        [UIView animateWithDuration:aDuration
-                              delay:0.0
-                            options:UIViewAnimationOptionCurveEaseInOut | UIViewAnimationOptionBeginFromCurrentState
-                         animations:executionBlock
-                         completion:nil];
-    }
-    else
-    {
-        executionBlock();
-    }
+//    if (aDuration > 0)
+//    {
+//        [UIView animateWithDuration:aDuration
+//                              delay:0.0
+//                            options:UIViewAnimationOptionCurveEaseInOut | UIViewAnimationOptionBeginFromCurrentState
+//                         animations:executionBlock
+//                         completion:nil];
+//    }
+//    else
+//    {
+//        executionBlock();
+//    }
+}
+
+- (BOOL)canBecomeFirstResponder
+{
+    return YES;
 }
 
 - (void)keyboardWillShow:(NSNotification *)notif
@@ -155,19 +253,17 @@
     [self setTextEntryViewBottomMargin:0.f duration:theDuration animationBlock:nil];
 }
 
-- (BOOL)canBecomeFirstResponder
-{
-    return YES;
-}
-
-- (UIView *)inputAccessoryView
+- (void)createInputAccessoryView
 {
     if (!self.customInputAccessoryView)
     {
         self.customInputAccessoryView = [[NIConversationInputAccessoryView alloc] initWithFrame:CGRectMake(0.f, 0.f, self.view.bounds.size.width, 44.f)];
         self.customInputAccessoryView.textView.delegate = self;
     }
-    
+}
+
+- (UIView *)inputAccessoryView
+{
     return self.customInputAccessoryView;
 }
 
@@ -175,12 +271,12 @@
 
 - (void)growingTextViewDidBeginEditing:(HPGrowingTextView *)growingTextView
 {
-    [growingTextView setNeedsLayout];
+
 }
 
 - (void)growingTextViewDidEndEditing:(HPGrowingTextView *)growingTextView
 {
-    [growingTextView resignFirstResponder];
+
 }
 
 - (void)growingTextView:(NIGrowingTextView *)growingTextView willChangeHeight:(float)height
@@ -210,6 +306,7 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Identifier"];
+    cell.backgroundColor = [UIColor greenColor];
     
     UILabel *label = (UILabel *)[cell viewWithTag:111];
     

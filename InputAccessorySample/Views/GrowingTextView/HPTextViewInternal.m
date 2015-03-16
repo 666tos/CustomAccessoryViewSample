@@ -27,110 +27,101 @@
 
 #import "HPTextViewInternal.h"
 
-
 @implementation HPTextViewInternal
 
-- (id)initWithFrame:(CGRect)frame
+static UITextView *sTempTextView = nil;
+
+- (UITextView *)tempTextView
 {
-    if (self = [super initWithFrame:frame])
+    if (!sTempTextView)
     {
-        // NIPH-2094, NIPH-2095: enable context menu for the input field
+        sTempTextView = [UITextView new];
+    }
+    
+    [UIView performWithoutAnimation:^
+     {
+         sTempTextView.text = nil;
+         
+         if (sTempTextView.font != self.font)
+         {
+             sTempTextView.font = self.font;
+         }
+         
+         sTempTextView.frame = self.frame;
+         sTempTextView.contentInset = self.contentInset;
+         sTempTextView.textAlignment = self.textAlignment;
+         
+         sTempTextView.text = self.text;
+     }];
+    
+    return sTempTextView;
+}
+
+- (id)initWithFrame:(CGRect)frame textContainer:(NSTextContainer *)textContainer
+{
+    if (self = [super initWithFrame:frame textContainer:textContainer])
+    {
+        // NIPH-2094, NIPH-2095, NIPH-3425: enable context menu for the input field
         self.canDisplayMenu = YES;
     }
     return self;
 }
 
--(void)setText:(NSString *)text
+- (CGSize)customContentSize
 {
-    BOOL originalValue = self.scrollEnabled;
-    //If one of GrowingTextView's superviews is a scrollView, and self.scrollEnabled == NO,
-    //setting the text programatically will cause UIKit to search upwards until it finds a scrollView with scrollEnabled==yes
-    //then scroll it erratically. Setting scrollEnabled temporarily to YES prevents this.
-    [self setScrollEnabled:YES];
-    [super setText:text];
-    [self setScrollEnabled:originalValue];
+    return [[self tempTextView] sizeThatFits:CGSizeMake(self.frame.size.width, MAXFLOAT)];
 }
 
-- (void)setScrollable:(BOOL)isScrollable
+- (void)layoutSubviews
 {
-    [super setScrollEnabled:isScrollable];
+    CGPoint contentOffset = self.contentOffset;
+    
+    [super layoutSubviews];
+    
+    CGSize customContentSize = self.customContentSize;
+    self.contentSize = customContentSize;
+    self.contentOffset = contentOffset;
 }
 
--(void)setContentOffset:(CGPoint)s
+- (void)setContentOffset:(CGPoint)contentOffset
 {
-	if(self.tracking || self.decelerating){
-		//initiated by user...
-        
-        UIEdgeInsets insets = self.contentInset;
-        insets.bottom = 0;
-        insets.top = 0;
-        self.contentInset = insets;
-        
-	} else {
-
-		float bottomOffset = (self.contentSize.height - self.frame.size.height + self.contentInset.bottom);
-		if(s.y < bottomOffset && self.scrollEnabled){            
-            UIEdgeInsets insets = self.contentInset;
-            insets.bottom = 8;
-            insets.top = 0;
-            self.contentInset = insets;            
-        }
-	}
-
-    // Fix "undersizing" bug
-    if (RUNNING_ON_IOS7)
+    CGSize customContentSize = self.customContentSize;
+    
+    if (!RUNNING_ON_IOS8)
     {
-        if (self.contentSize.height < self.frame.size.height)
+        // Fix "undersizing" bug
+        
+        UIView *subview = [self.subviews firstObject];
+        
+        CGRect subviewFrame = subview.frame;
+        if (subviewFrame.size.height < customContentSize.height)
         {
-            CGSize newContentSize = self.contentSize;
-            newContentSize.height = self.frame.size.height;
-            self.contentSize = newContentSize;
-
-            // any immediate child view should also have its height adjusted
-            for (UIView *subview in self.subviews) {
-                CGRect subviewFrame = subview.frame;
-                if (subviewFrame.size.height < newContentSize.height) {
-                    subviewFrame.size.height = newContentSize.height;
-                    subview.frame = subviewFrame;
-                }
-            }
+            subviewFrame.size.height = customContentSize.height;
+            subview.frame = subviewFrame;
         }
-    }
-
-    // Fix "overscrolling" bug
-    if (s.y > self.contentSize.height - self.frame.size.height && !self.decelerating && !self.tracking && !self.dragging)
-        s = CGPointMake(s.x, self.contentSize.height - self.frame.size.height);
-
-	[super setContentOffset:s];
-}
-
--(void)setContentInset:(UIEdgeInsets)s
-{
-	UIEdgeInsets insets = s;
-	
-	if(s.bottom>8) insets.bottom = 0;
-	insets.top = 0;
-
-	[super setContentInset:insets];
-}
-
--(void)setContentSize:(CGSize)contentSize
-{
-    // is this an iOS5 bug? Need testing!
-    if(self.contentSize.height > contentSize.height)
-    {
-        UIEdgeInsets insets = self.contentInset;
-        insets.bottom = 0;
-        insets.top = 0;
-        self.contentInset = insets;
     }
     
+    // Fix "overscrolling" bug
+    if (contentOffset.y > customContentSize.height - self.frame.size.height && !self.decelerating && !self.tracking && !self.dragging)
+    {
+        contentOffset = CGPointMake(contentOffset.x, customContentSize.height - self.frame.size.height);
+    }
+    
+    [super setContentOffset:contentOffset];
+}
+
+- (void)setContentSize:(CGSize)contentSize
+{
+    CGPoint contentOffset = self.contentOffset;
     [super setContentSize:contentSize];
+    
+    self.contentOffset = contentOffset;
 }
 
 - (void)drawRect:(CGRect)rect
 {
     [super drawRect:rect];
+    
     if (self.displayPlaceHolder && self.placeholder && self.placeholderColor)
     {
         if ([self respondsToSelector:@selector(snapshotViewAfterScreenUpdates:)])
@@ -139,33 +130,36 @@
             paragraphStyle.alignment = self.textAlignment;
             [self.placeholder drawInRect:CGRectMake(5, 8 + self.contentInset.top, self.frame.size.width-self.contentInset.left, self.frame.size.height- self.contentInset.top) withAttributes:@{NSFontAttributeName:self.font, NSForegroundColorAttributeName:self.placeholderColor, NSParagraphStyleAttributeName:paragraphStyle}];
         }
-        else {
+        else
+        {
             [self.placeholderColor set];
-            [self.placeholder drawInRect:CGRectMake(8.0f, 8.0f, self.frame.size.width - 16.0f, self.frame.size.height - 16.0f) withFont:self.font];
+            
+            if (nil != self.font)
+            {
+                NSDictionary *attributes = @{NSFontAttributeName: self.font};
+                [self.placeholder drawInRect:CGRectMake(8.0f, 8.0f, self.frame.size.width - 16.0f, self.frame.size.height - 16.0f) withAttributes:attributes];
+            }
         }
     }
 }
 
-- (void)setPlaceholder:(NSString *)placeholder
+-(void)setPlaceholder:(NSString *)placeholder
 {
-	_placeholder = placeholder;
-	
-	[self setNeedsDisplay];
+    _placeholder = placeholder;
+    
+    [self setNeedsDisplay];
 }
 
 - (UIResponder *)nextResponder
 {
-    if (_overrideNextResponder != nil)
-        return _overrideNextResponder;
-    else
-        return [super nextResponder];
+    return (_overrideNextResponder != nil) ? _overrideNextResponder : [super nextResponder];
 }
 
 - (void)paste:(id)sender
 {
     UIPasteboard *pasteBoard = [UIPasteboard generalPasteboard];
     UIImage *pastedImage = pasteBoard.image;
-
+    
     if (pastedImage)
     {
         if (self.pasteImageDelegate)

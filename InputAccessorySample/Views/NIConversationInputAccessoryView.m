@@ -20,7 +20,7 @@ static const CGFloat kConversationTextInputTextViewCornerRadius = 6.f;
 @property (assign, nonatomic) BOOL usesAutolayout;
 
 @property (strong, nonatomic) UIView *contentView;
-@property (weak, nonatomic) UIView *topSeparatorView;
+@property (strong, nonatomic) UIView *topSeparatorView;
 
 @property (nonatomic, strong) NSLayoutConstraint *heightConstraint;
 
@@ -35,7 +35,9 @@ static const CGFloat kConversationTextInputTextViewCornerRadius = 6.f;
     {
         self.backgroundColor = [UIColor clearColor];
         
-        self.usesAutolayout = RUNNING_ON_IOS8;
+        CGFloat systemVersion = [UIDevice currentDevice].systemVersion.floatValue;
+        
+        self.usesAutolayout = (systemVersion >= 8.f);
         
         [self commonInit];
     }
@@ -45,7 +47,9 @@ static const CGFloat kConversationTextInputTextViewCornerRadius = 6.f;
 
 - (void)commonInit
 {
-    self.contentView = [[UIView alloc] initWithFrame:self.bounds];
+    UIToolbar *toolbar = [[UIToolbar alloc] initWithFrame:self.bounds];
+    toolbar.translucent = YES;
+    self.contentView = toolbar;
     self.contentView.backgroundColor = [UIColor colorWithWhite:248.f/255.f alpha:0.8f];
     
     self.attachmentButton = [UIButton new];
@@ -118,6 +122,12 @@ static const CGFloat kConversationTextInputTextViewCornerRadius = 6.f;
     }
 }
 
+- (void)willMoveToWindow:(UIWindow *)newWindow
+{
+    [self.window endEditing:YES];
+    
+    [super willMoveToWindow:newWindow];
+}
 
 - (void)didMoveToSuperview
 {
@@ -136,8 +146,6 @@ static const CGFloat kConversationTextInputTextViewCornerRadius = 6.f;
 
 - (BOOL)becomeFirstResponder
 {
-    [super becomeFirstResponder];
-    
     [self.textView setNeedsLayout];
     
     return [self.textView becomeFirstResponder];
@@ -145,8 +153,9 @@ static const CGFloat kConversationTextInputTextViewCornerRadius = 6.f;
 
 - (BOOL)resignFirstResponder
 {
-	[super resignFirstResponder];
-	return [self.textView resignFirstResponder];
+    [self.textView resignFirstResponder];
+    
+    return [super resignFirstResponder];
 }
 
 - (BOOL)isFirstResponder
@@ -172,20 +181,17 @@ static const CGFloat kConversationTextInputTextViewCornerRadius = 6.f;
 {
     [super layoutSubviews];
     
-    if (!self.usesAutolayout)
-    {
-        self.contentView.frame = self.bounds;
-        
-        self.attachmentButton.frame = CGRectMake(0.f, 0.f, kConversationTextInputAttachmentButtonWidth, self.bounds.size.height);
-        
-        CGSize sendButtonSize = [self.sendButton sizeThatFits:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX)];
-        self.sendButton.frame = CGRectMake(self.bounds.size.width - sendButtonSize.width, 0.f, sendButtonSize.width, self.bounds.size.height);
-        
-        CGFloat textViewWidth = self.bounds.size.width - kConversationTextInputAttachmentButtonWidth - sendButtonSize.width;
-        self.textView.frame = CGRectMake(kConversationTextInputAttachmentButtonWidth, 0.f, textViewWidth, self.bounds.size.height);
-        
-        self.topSeparatorView.frame = CGRectMake(0.f, 0.f, self.bounds.size.width, 1.f/UI_SCREEN_SCALE);
-    }
+    self.contentView.frame = self.bounds;
+    
+    self.attachmentButton.frame = CGRectMake(0.f, 0.f, kConversationTextInputAttachmentButtonWidth, self.bounds.size.height);
+    
+    CGSize sendButtonSize = [self.sendButton sizeThatFits:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX)];
+    self.sendButton.frame = CGRectMake(self.bounds.size.width - sendButtonSize.width, 0.f, sendButtonSize.width, self.bounds.size.height);
+    
+    CGFloat textViewWidth = self.bounds.size.width - kConversationTextInputAttachmentButtonWidth - sendButtonSize.width;
+    self.textView.frame = CGRectMake(kConversationTextInputAttachmentButtonWidth, 0.f, textViewWidth, self.bounds.size.height);
+    
+    self.topSeparatorView.frame = CGRectMake(0.f, 0.f, self.bounds.size.width, 1.f/UI_SCREEN_SCALE);
 }
 
 - (void)setHeight:(CGFloat)height
@@ -194,16 +200,35 @@ static const CGFloat kConversationTextInputTextViewCornerRadius = 6.f;
     
     if (self.usesAutolayout)
     {
-        [self.superview addConstraint:self.heightConstraint];
+        [self.superview.superview addConstraint:self.heightConstraint];
         self.heightConstraint.constant = height;
         [self.superview layoutIfNeeded];
+        [self layoutIfNeeded];
+        [self.window layoutIfNeeded];
     }
     else
     {
-        CGRect accessoryFrame = self.frame;
-        self.frame = CGRectMake(accessoryFrame.origin.x, accessoryFrame.origin.y, accessoryFrame.size.width, height);
+        CGRect accessoryFrame = CGRectMake(0.f, 0.f, self.frame.size.width, height);
+        
+        if (CGRectEqualToRect(accessoryFrame, self.frame))
+        {
+            self.frame = CGRectZero;
+        }
+        
+        self.frame = accessoryFrame;
+        
         [self layoutIfNeeded];
     }
+}
+
+- (CGFloat)height
+{
+    if (self.usesAutolayout)
+    {
+        return self.heightConstraint.constant;
+    }
+    
+    return self.frame.size.height;
 }
 
 - (void)refreshFonts

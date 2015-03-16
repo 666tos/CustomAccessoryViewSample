@@ -70,7 +70,7 @@ const CGFloat kNIGrowingTextViewMinTextViewHeight = 44.f;
     {
         self.usingAutolayout = usingAutolayout;
         
-        [self customInitialiser];
+        [self commonInitialiser];
     }
     
     return self;
@@ -103,8 +103,10 @@ const CGFloat kNIGrowingTextViewMinTextViewHeight = 44.f;
     [self.layer.mask display];
 }
 
-- (void)customInitialiser
+- (void)commonInitialiser
 {
+    [super commonInitialiser];
+    
     self.animateHeightChange = NO;
     
     NIGrowingTextViewMaskLayer *maskLayer = [NIGrowingTextViewMaskLayer new];
@@ -114,6 +116,7 @@ const CGFloat kNIGrowingTextViewMinTextViewHeight = 44.f;
     self.layer.mask = maskLayer;
     
     self.frameLayer = [CALayer new];
+    self.frameLayer.contentsScale = UI_SCREEN_SCALE;
     self.frameLayer.cornerRadius = self.cornerRadius;
     self.frameLayer.borderColor = [UIColor colorWithWhite:172.f/255.f alpha:1.f].CGColor;
     self.frameLayer.borderWidth = 1.f/UI_SCREEN_SCALE;
@@ -127,8 +130,6 @@ const CGFloat kNIGrowingTextViewMinTextViewHeight = 44.f;
     NIGrowingTextViewMaskLayer *maskLayer = (NIGrowingTextViewMaskLayer *)self.layer.mask;
     maskLayer.height = maskLayerHeight;
     [maskLayer setNeedsDisplay];
-    
-    [self.superview layoutIfNeeded];
 }
 
 - (void)layoutSubviews

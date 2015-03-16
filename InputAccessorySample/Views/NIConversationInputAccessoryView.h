@@ -14,6 +14,6 @@ extern const CGFloat KConversationInputAccessoryViewMinimumActiveAlpha;
 @property (nonatomic, strong) NIGrowingTextView *textView;
 @property (nonatomic, strong) UIButton *sendButton;
 
-- (void)setHeight:(CGFloat)height;
+@property (nonatomic, assign) CGFloat height;
 
 @end
